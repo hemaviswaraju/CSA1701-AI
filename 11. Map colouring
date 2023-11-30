@@ -1,47 +1,26 @@
-def is_safe(graph, node, color, coloring):
-	for neighbor in graph[node]:
-    	if neighbor in coloring and coloring[neighbor] == color:
-        	return False
-	return True
- 
-def map_coloring(graph, colors, coloring, nodes):
-	if not nodes:
-    	return True
- 
-	node = nodes[0]
-	for color in colors:
-    	if is_safe(graph, node, color, coloring):
-        	coloring[node] = color
-        	if map_coloring(graph, colors, coloring, nodes[1:]):
-            	return True
-        	coloring.pop(node, None)
- 
-	return False
- 
-def main():
-		graph = {
-    	'A': ['B', 'C'],
-    	'B': ['A', 'C', 'D'],
-    	'C': ['A', 'B', 'D', 'E'],
-    	'D': ['B', 'C', 'E', 'F'],
-    	'E': ['C', 'D'],
-    	'F': ['D']
-	}
- 
-	
-	colors = ['Red', 'Green', 'Blue', 'Yellow']
- 
-	
-	coloring = {}
-	nodes = list(graph.keys())
- 
-	if map_coloring(graph, colors, coloring, nodes):
-    	print("Map coloring solution:")
-    	for node, color in coloring.items():
-        	print(f"{node} -> {color}")
-	else:
-    	print("No valid coloring found for the map.")
- 
-if __name__ == "__main__":
-	main()
- 
+def map_coloring(graph):
+    colors = {}
+    available_colors = set(['Red', 'Green', 'Blue', 'Yellow'])
+
+    for region in graph:
+        used_colors = {colors[neighbor] for neighbor in graph[region] if neighbor in colors}
+        available_colors -= used_colors
+        if available_colors:
+            colors[region] = min(available_colors)
+        else:
+            raise ValueError("No available colors for region {}".format(region))
+
+    return colors
+
+example_graph = {
+    'A': ['C', 'B', 'D'],
+    'B': ['B', 'C'],
+    'C': ['A', 'C', 'D'],
+    'D': ['B', 'A']
+}
+
+try:
+    result = map_coloring(example_graph)
+    print("Assigned colors:", result)
+except ValueError as e:
+    print(e)
